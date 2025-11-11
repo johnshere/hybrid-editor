@@ -1,4 +1,5 @@
 import typescript from '@rollup/plugin-typescript';
+import terser from '@rollup/plugin-terser';
 import { defineConfig } from 'rollup';
 
 export default defineConfig([
@@ -15,6 +16,15 @@ export default defineConfig([
         tsconfig: './tsconfig.json',
         declaration: false,
         declarationMap: false,
+      }),
+      terser({
+        compress: {
+          drop_console: false, // 保留 console，可根据需要调整
+          drop_debugger: true,
+        },
+        format: {
+          comments: false, // 移除注释
+        },
       }),
     ],
   },
@@ -33,7 +43,15 @@ export default defineConfig([
         declaration: false,
         declarationMap: false,
       }),
+      terser({
+        compress: {
+          drop_console: false, // 保留 console，可根据需要调整
+          drop_debugger: true,
+        },
+        format: {
+          comments: false, // 移除注释
+        },
+      }),
     ],
   },
 ]);
-
