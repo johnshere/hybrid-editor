@@ -9,7 +9,7 @@ export default defineConfig({
   },
   resolve: {
     alias: {
-      'hybrid-editor': resolve(__dirname, '../src'),
+      'hybrid-editor': resolve(__dirname, '../packages'),
     },
   },
 });
