@@ -54,4 +54,3 @@ describe('HybridEditor', () => {
     expect(editor).toBeInstanceOf(HybridEditor);
   });
 });
-

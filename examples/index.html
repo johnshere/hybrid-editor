@@ -1,38 +1,37 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="zh-CN">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>hybrid-editor 示例</title>
-  <style>
-    body {
-      margin: 0;
-      padding: 20px;
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    }
-    #editor-container {
-      width: 100%;
-      height: 600px;
-      border: 1px solid #ddd;
-      border-radius: 4px;
-    }
-  </style>
-</head>
-<body>
-  <h1>hybrid-editor 示例</h1>
-  <div id="editor-container"></div>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>hybrid-editor 示例</title>
+    <style>
+      body {
+        margin: 0;
+        padding: 20px;
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      }
+      #editor-container {
+        width: 100%;
+        height: 600px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>hybrid-editor 示例</h1>
+    <div id="editor-container"></div>
 
-  <script type="module">
-    import { HybridEditor } from '../src/index.ts';
-    
-    const editor = new HybridEditor({
-      target: '#editor-container',
-      locale: 'zh-CN',
-      features: ['rich-text', 'vector', 'freehand'],
-    });
-    
-    editor.mount();
-  </script>
-</body>
+    <script type="module">
+      import { HybridEditor } from '../src/index.ts';
+
+      const editor = new HybridEditor({
+        target: '#editor-container',
+        locale: 'zh-CN',
+        features: ['rich-text', 'vector', 'freehand'],
+      });
+
+      editor.mount();
+    </script>
+  </body>
 </html>
-
