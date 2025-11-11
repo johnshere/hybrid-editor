@@ -1,0 +1,10 @@
+# Prettier 忽略文件
+node_modules/
+dist/
+coverage/
+*.log
+*.tsbuildinfo
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+

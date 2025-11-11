@@ -5,10 +5,11 @@
 ### 安装依赖
 
 ```bash
+# 开发本项目时，仅支持使用 pnpm（>=8.0.0）
 pnpm install
-# 或
-npm install
 ```
+
+> ⚠️ **注意**：此限制仅针对**开发本项目**时。用户安装 `hybrid-editor` 包时可以使用 npm、yarn 或 pnpm 任意包管理器。
 
 ### 开发模式
 
@@ -27,6 +28,7 @@ pnpm build
 ```
 
 构建产物：
+
 - `dist/index.js` - ESM 格式（现代模式）
 - `dist/index.cjs` - CommonJS 格式（传统模式）
 - `dist/index.d.ts` - TypeScript 类型声明文件
@@ -49,6 +51,20 @@ pnpm test:coverage
 
 ```bash
 pnpm test:ui
+```
+
+### 代码格式化
+
+格式化代码：
+
+```bash
+pnpm format
+```
+
+检查代码格式：
+
+```bash
+pnpm format:check
 ```
 
 ### 代码检查
@@ -94,6 +110,19 @@ hybrid-editor/
 - **Vite** - 开发服务器
 - **Vitest** - 单元测试框架
 - **ESLint** - 代码检查
+- **Prettier** - 代码格式化
+- **Husky** - Git hooks 管理
+- **lint-staged** - 提交时代码校验
+
+## 🔒 Git Hooks 和代码校验
+
+项目配置了 Husky + lint-staged，在提交代码时会自动：
+
+1. **ESLint 检查**：检查 TypeScript 代码规范
+2. **Prettier 格式化**：自动格式化代码
+3. **类型检查**：确保类型正确
+
+如果代码不符合规范，提交会被阻止。请先运行 `pnpm lint:fix` 和 `pnpm format` 修复问题后再提交。
 
 ## 📦 发布
 
@@ -104,4 +133,3 @@ npm publish
 ```
 
 > 注意：发布前会自动运行 `prepublishOnly` 脚本进行构建。
-
