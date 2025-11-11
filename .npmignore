@@ -1,0 +1,27 @@
+# Source files
+src/
+*.ts
+!*.d.ts
+
+# Config files
+tsconfig.json
+rollup.config.ts
+vite.config.ts
+vitest.config.ts
+.eslintrc.json
+
+# Development
+.vscode/
+.idea/
+*.test.ts
+*.spec.ts
+
+# Build tools
+node_modules/
+coverage/
+*.log
+
+# Git
+.git/
+.gitignore
+

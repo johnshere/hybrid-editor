@@ -1,0 +1,72 @@
+{
+  "name": "hybrid-editor",
+  "version": "0.1.0",
+  "description": "简易上手的下一代混合排版编辑器：同时支持富文本、矢量绘制与自由绘图，自动实现文本环绕与自适应布局",
+  "type": "module",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.js"
+      },
+      "require": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.cjs"
+      }
+    }
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "dev": "vite --config examples/vite.config.ts",
+    "build": "tsc --emitDeclarationOnly && rollup -c",
+    "build:watch": "rollup -c -w",
+    "test": "vitest",
+    "test:ui": "vitest --ui",
+    "test:coverage": "vitest --coverage",
+    "lint": "eslint src --ext .ts",
+    "lint:fix": "eslint src --ext .ts --fix",
+    "type-check": "tsc --noEmit",
+    "prepublishOnly": "npm run build"
+  },
+  "keywords": [
+    "editor",
+    "rich-text",
+    "vector-graphics",
+    "drawing",
+    "text-wrap",
+    "hybrid-editor",
+    "canvas",
+    "svg"
+  ],
+  "author": "",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/<your-org>/hybrid-editor.git"
+  },
+  "devDependencies": {
+    "@rollup/plugin-typescript": "^11.1.6",
+    "@types/node": "^20.11.5",
+    "@typescript-eslint/eslint-plugin": "^6.19.1",
+    "@typescript-eslint/parser": "^6.19.1",
+    "@vitest/ui": "^1.2.1",
+    "eslint": "^8.56.0",
+    "jsdom": "^23.0.1",
+    "rollup": "^4.9.0",
+    "tslib": "^2.6.2",
+    "typescript": "^5.3.3",
+    "vite": "^5.0.11",
+    "vitest": "^1.2.1"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
+
