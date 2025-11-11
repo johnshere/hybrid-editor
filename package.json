@@ -30,10 +30,10 @@
     "test": "vitest",
     "test:ui": "vitest --ui",
     "test:coverage": "vitest --coverage",
-    "lint": "eslint src --ext .ts",
-    "lint:fix": "eslint src --ext .ts --fix",
-    "format": "prettier --write \"src/**/*.{ts,tsx}\" \"examples/**/*.{html,ts}\"",
-    "format:check": "prettier --check \"src/**/*.{ts,tsx}\" \"examples/**/*.{html,ts}\"",
+    "lint": "eslint packages --ext .ts",
+    "lint:fix": "eslint packages --ext .ts --fix",
+    "format": "prettier --write \"packages/**/*.{ts,tsx}\" \"examples/**/*.{html,ts}\"",
+    "format:check": "prettier --check \"packages/**/*.{ts,tsx}\" \"examples/**/*.{html,ts}\"",
     "type-check": "tsc --noEmit",
     "prepare": "husky install",
     "prepublishOnly": "pnpm run build"
@@ -78,7 +78,7 @@
     "node": ">=18.0.0"
   },
   "lint-staged": {
-    "src/**/*.{ts,tsx}": [
+    "packages/**/*.{ts,tsx}": [
       "eslint --fix",
       "prettier --write"
     ],

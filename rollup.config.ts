@@ -5,7 +5,7 @@ import { defineConfig } from 'rollup';
 export default defineConfig([
   // ESM 构建（现代模式）
   {
-    input: 'src/index.ts',
+    input: 'packages/index.ts',
     output: {
       file: 'dist/index.js',
       format: 'es',
@@ -30,7 +30,7 @@ export default defineConfig([
   },
   // CommonJS 构建（传统模式）
   {
-    input: 'src/index.ts',
+    input: 'packages/index.ts',
     output: {
       file: 'dist/index.cjs',
       format: 'cjs',

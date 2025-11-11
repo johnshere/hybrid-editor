@@ -111,7 +111,7 @@ hybrid-editor/
 ├─ packages/
 │  ├─ core/         # 编辑器内核：数据模型、命令系统、协作
 │  ├─ renderer/     # Canvas/SVG 渲染抽象
-│  └─ ui/           # React 组件与工具面板
+│  └─ ui/           # 组件与工具面板
 ├─ examples/        # 演示与集成案例
 ├─ docs/            # 文档与设计规范
 └─ scripts/         # 构建、发布脚本
