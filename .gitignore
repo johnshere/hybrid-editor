@@ -43,3 +43,4 @@ pnpm-debug.log*
 # Husky
 .husky/_
 
+docs/todo.md

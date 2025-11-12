@@ -70,8 +70,13 @@ pnpm add hybrid-editor
 import { HybridEditor } from 'hybrid-editor';
 
 const editor = new HybridEditor({
-  target: document.getElementById('editor'),
-  locale: 'zh-CN',
+  el: document.getElementById('editor'),
+  locale: {
+    toolbar: {
+      bold: '粗体',
+      italic: '斜体',
+    },
+  },
   features: ['rich-text', 'vector', 'freehand'],
 });
 

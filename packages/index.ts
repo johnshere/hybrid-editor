@@ -12,27 +12,44 @@ export * from './renderer';
 // 导出 UI 模块
 export * from './ui';
 
+// 导出工具模块
+export * from './utils';
+
 import { StateManager, CommandManager, type EditorState, type DocumentNode } from './core';
 import { RendererFactory, type Renderer } from './renderer';
-import { Toolbar, PropertyPanel } from './ui';
+import { Toolbar, PropertyPanel, zhCN } from './ui';
+import type { InternalLocale, Locale, ToolbarConfig } from './ui';
+import { deepMerge } from './utils';
 
-export interface HybridEditorOptions {
-  /** 挂载的目标元素 */
-  target: HTMLElement | string;
-  /** 语言设置 */
-  locale?: string;
+/**
+ * HybridEditor 内部选项类型（locale 已合并为完整对象）
+ */
+interface InternalHybridEditorOptions {
+  el: HTMLElement;
+  locale: InternalLocale;
   /** 启用的功能模块 */
-  features?: ('rich-text' | 'vector' | 'freehand')[];
+  features: ('rich-text' | 'vector' | 'freehand')[];
   /** 渲染器类型 */
-  rendererType?: 'canvas' | 'svg';
+  rendererType: 'canvas' | 'svg';
+  /** 工具栏配置 */
+  toolbarConfig?: ToolbarConfig;
+}
+
+export interface HybridEditorOptions extends Omit<InternalHybridEditorOptions, 'el' | 'locale'> {
+  /** 挂载的目标元素 */
+  el: HTMLElement | string;
+  /** 语言设置 */
+  locale?: Locale;
 }
 
 /**
  * HybridEditor 主类
  */
 export class HybridEditor {
-  private target: HTMLElement;
-  private options: Required<HybridEditorOptions>;
+  private el: HTMLElement;
+  private shadowRoot: ShadowRoot | null = null;
+  private editorContainer: HTMLElement | null = null;
+  private options: InternalHybridEditorOptions;
   private stateManager: StateManager;
   private commandManager: CommandManager;
   private renderer: Renderer;
@@ -40,21 +57,22 @@ export class HybridEditor {
   private propertyPanel: PropertyPanel | null = null;
 
   constructor(options: HybridEditorOptions) {
-    if (typeof options.target === 'string') {
-      const element = document.querySelector<HTMLElement>(options.target);
+    if (typeof options.el === 'string') {
+      const element = document.querySelector<HTMLElement>(options.el);
       if (!element) {
-        throw new Error(`Target element not found: ${options.target}`);
+        throw new Error(`Target element not found: ${options.el}`);
       }
-      this.target = element;
+      this.el = element;
     } else {
-      this.target = options.target;
+      this.el = options.el;
     }
 
     this.options = {
-      target: this.target,
-      locale: options.locale || 'zh-CN',
+      el: this.el,
+      locale: deepMerge(options.locale || {}, zhCN),
       features: options.features || ['rich-text', 'vector', 'freehand'],
       rendererType: options.rendererType || 'canvas',
+      toolbarConfig: options.toolbarConfig,
     };
 
     // 初始化核心模块
@@ -69,22 +87,29 @@ export class HybridEditor {
    * 挂载编辑器
    */
   mount(): void {
-    // 初始化渲染器
-    this.renderer.init(this.target);
+    // 创建 Shadow DOM 实现样式隔离
+    this.shadowRoot = this.el.attachShadow({ mode: 'closed' });
 
-    // 创建工具栏容器
-    const toolbarContainer = document.createElement('div');
-    toolbarContainer.className = 'hybrid-editor-toolbar';
-    this.target.appendChild(toolbarContainer);
-    this.toolbar = new Toolbar(toolbarContainer);
-    this.toolbar.render();
+    // 注入编辑器样式到 Shadow DOM
+    this.injectStyles();
 
-    // 创建属性面板容器
-    const propertyPanelContainer = document.createElement('div');
-    propertyPanelContainer.className = 'hybrid-editor-property-panel';
-    this.target.appendChild(propertyPanelContainer);
-    this.propertyPanel = new PropertyPanel(propertyPanelContainer);
-    this.propertyPanel.render();
+    // 创建编辑器主容器
+    this.editorContainer = document.createElement('div');
+    this.editorContainer.className = 'hybrid-editor-container';
+    this.shadowRoot.appendChild(this.editorContainer);
+
+    // 初始化渲染器（使用 Shadow DOM 内的容器）
+    this.renderer.init(this.editorContainer);
+
+    // 创建工具栏（组件内部会自动创建容器并挂载）
+    this.toolbar = new Toolbar(
+      this.editorContainer,
+      this.options.toolbarConfig,
+      this.options.locale
+    );
+
+    // 创建属性面板（组件内部会自动创建容器并挂载）
+    this.propertyPanel = new PropertyPanel(this.editorContainer, this.options.locale);
 
     // 订阅状态变化
     this.stateManager.subscribe((state: EditorState) => {
@@ -95,7 +120,89 @@ export class HybridEditor {
       });
     });
 
-    console.log('HybridEditor mounted', this.options);
+    console.log('HybridEditor mounted');
+  }
+
+  /**
+   * 注入编辑器样式到 Shadow DOM
+   */
+  private injectStyles(): void {
+    if (!this.shadowRoot) return;
+
+    const style = document.createElement('style');
+    style.textContent = `
+      /* 编辑器容器样式 */
+      .hybrid-editor-container {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        box-sizing: border-box;
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+        font-size: 14px;
+        color: #333;
+        background-color: #fff;
+      }
+
+      /* 工具栏样式 */
+      .hybrid-editor-toolbar {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 12px;
+        border-bottom: 1px solid #e0e0e0;
+        background-color: #fafafa;
+        flex-shrink: 0;
+      }
+
+      .hybrid-editor-toolbar .tool-button {
+        padding: 6px 12px;
+        border: 1px solid #d0d0d0;
+        border-radius: 4px;
+        background-color: #fff;
+        color: #333;
+        cursor: pointer;
+        font-size: 14px;
+        transition: all 0.2s;
+      }
+
+      .hybrid-editor-toolbar .tool-button:hover {
+        background-color: #f0f0f0;
+        border-color: #b0b0b0;
+      }
+
+      .hybrid-editor-toolbar .tool-button.active {
+        background-color: #007bff;
+        color: #fff;
+        border-color: #007bff;
+      }
+
+      .hybrid-editor-toolbar .tool-button:active {
+        transform: scale(0.95);
+      }
+
+      /* 属性面板样式 */
+      .hybrid-editor-property-panel {
+        padding: 12px;
+        border-top: 1px solid #e0e0e0;
+        background-color: #fafafa;
+        flex-shrink: 0;
+      }
+
+      .hybrid-editor-property-panel .property-panel {
+        color: #666;
+        font-size: 13px;
+      }
+
+      /* Canvas/SVG 容器样式 */
+      canvas,
+      svg {
+        display: block;
+        width: 100%;
+        height: 100%;
+      }
+    `;
+    this.shadowRoot.appendChild(style);
   }
 
   /**
@@ -113,8 +220,16 @@ export class HybridEditor {
       // TODO: 清理属性面板
     }
 
-    // 清空容器
-    this.target.innerHTML = '';
+    // 清理 Shadow DOM
+    if (this.shadowRoot) {
+      // 清空 Shadow DOM 内容
+      this.shadowRoot.innerHTML = '';
+      this.shadowRoot = null;
+    }
+
+    // 清空宿主元素（Shadow DOM 被清空后，宿主元素也会被清空）
+    this.el.innerHTML = '';
+    this.editorContainer = null;
 
     console.log('HybridEditor unmounted');
   }

@@ -2,45 +2,43 @@
  * ui - 用户界面
  * 组件与工具面板
  */
+export * from './locale';
 
-/**
- * 工具栏配置
- */
-export interface ToolbarConfig {
-  /** 显示的工具 */
-  tools?: ToolType[];
-  /** 工具栏位置 */
-  position?: 'top' | 'bottom' | 'left' | 'right';
-}
+import { deepMerge } from '../utils';
+import type { InternalLocale } from './locale';
 
-/**
- * 工具类型
- */
-export type ToolType = 'select' | 'text' | 'rectangle' | 'ellipse' | 'polygon' | 'pen' | 'eraser';
+const defaultToolbarConfig = {
+  tools: ['select', 'text', 'rectangle', 'ellipse', 'polygon', 'pen', 'eraser'] as const,
+  position: 'top',
+};
+
+type InternalToolbarConfig = typeof defaultToolbarConfig;
+export type ToolbarConfig = Partial<InternalToolbarConfig>;
+export type ToolType = InternalToolbarConfig['tools'][number];
 
 /**
  * 工具栏
  */
 export class Toolbar {
   private container: HTMLElement;
-  private config: Required<ToolbarConfig>;
+  private config: InternalToolbarConfig;
+  private locale: InternalLocale;
   private activeTool: ToolType = 'select';
   private toolChangeListeners: Set<(tool: ToolType) => void> = new Set();
 
-  constructor(container: HTMLElement, config?: ToolbarConfig) {
-    this.container = container;
-    this.config = {
-      tools: config?.tools || [
-        'select',
-        'text',
-        'rectangle',
-        'ellipse',
-        'polygon',
-        'pen',
-        'eraser',
-      ],
-      position: config?.position || 'top',
-    };
+  constructor(
+    parentContainer: HTMLElement,
+    config: ToolbarConfig | undefined,
+    locale: InternalLocale
+  ) {
+    this.container = document.createElement('div');
+    this.container.className = 'hybrid-editor-toolbar';
+    parentContainer.appendChild(this.container);
+    this.config = deepMerge({ ...defaultToolbarConfig }, config);
+    this.locale = locale;
+
+    // 自动渲染
+    this.render();
   }
 
   /**
@@ -112,9 +110,18 @@ export class Toolbar {
  */
 export class PropertyPanel {
   private container: HTMLElement;
+  private locale: InternalLocale;
 
-  constructor(container: HTMLElement) {
-    this.container = container;
+  constructor(parentContainer: HTMLElement, locale: InternalLocale) {
+    // 创建属性面板容器并挂载到父容器
+    this.container = document.createElement('div');
+    this.container.className = 'hybrid-editor-property-panel';
+    parentContainer.appendChild(this.container);
+
+    this.locale = locale;
+
+    // 自动渲染
+    this.render();
   }
 
   /**

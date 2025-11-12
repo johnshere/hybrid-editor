@@ -16,14 +16,14 @@ describe('HybridEditor', () => {
 
   it('应该能够通过 HTMLElement 创建实例', () => {
     const editor = new HybridEditor({
-      target: container,
+      el: container,
     });
     expect(editor).toBeInstanceOf(HybridEditor);
   });
 
   it('应该能够通过选择器字符串创建实例', () => {
     const editor = new HybridEditor({
-      target: '#test-editor',
+      el: '#test-editor',
     });
     expect(editor).toBeInstanceOf(HybridEditor);
   });
@@ -31,14 +31,14 @@ describe('HybridEditor', () => {
   it('应该在使用无效选择器时抛出错误', () => {
     expect(() => {
       new HybridEditor({
-        target: '#non-existent',
+        el: '#non-existent',
       });
     }).toThrow('Target element not found');
   });
 
   it('应该使用默认配置', () => {
     const editor = new HybridEditor({
-      target: container,
+      el: container,
     });
     editor.mount();
     // 验证默认配置已应用
@@ -47,8 +47,12 @@ describe('HybridEditor', () => {
 
   it('应该接受自定义配置', () => {
     const editor = new HybridEditor({
-      target: container,
-      locale: 'en-US',
+      el: container,
+      locale: {
+        toolbar: {
+          bold: 'Bold',
+        },
+      },
       features: ['rich-text'],
     });
     expect(editor).toBeInstanceOf(HybridEditor);
