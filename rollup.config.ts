@@ -6,7 +6,7 @@ import cssnano from 'cssnano';
 import { readFileSync } from 'fs';
 import { resolve, dirname } from 'path';
 import { fileURLToPath } from 'url';
-import { defineConfig } from 'rollup';
+import { defineConfig, type OutputBundle, type OutputAsset } from 'rollup';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -15,12 +15,12 @@ const __dirname = dirname(__filename);
 const exportCssAsString = () => {
   return {
     name: 'export-css-as-string',
-    generateBundle(_options, bundle) {
+    generateBundle(_options, bundle: OutputBundle) {
       // 查找生成的 CSS 文件
       const cssAsset = Object.values(bundle).find(
-        (chunk) => chunk.type === 'asset' && chunk.fileName === 'index.css'
+        (chunk): chunk is OutputAsset => chunk.type === 'asset' && chunk.fileName === 'index.css'
       );
-      if (cssAsset && cssAsset.type === 'asset') {
+      if (cssAsset) {
         // 将 CSS 内容导出为 JS 模块
         this.emitFile({
           type: 'asset',

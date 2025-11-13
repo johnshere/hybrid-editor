@@ -10,7 +10,11 @@ export function isMobileDevice(): boolean {
     return false;
   }
 
-  const userAgent = window.navigator.userAgent || window.navigator.vendor || (window as any).opera;
+  const userAgent =
+    window.navigator.userAgent ||
+    window.navigator.vendor ||
+    (window as Window & { opera?: string }).opera ||
+    '';
 
   // 移动设备常见的 User Agent 模式
   const mobileRegex = /android|webos|iphone|ipad|ipod|blackberry|iemobile|opera mini/i;
@@ -25,7 +29,7 @@ export function isMobileDevice(): boolean {
  * @param source 源对象（用于合并，支持深度可选类型）
  * @returns 合并后的对象，类型为两个输入类型的交叉类型
  */
-export function deepMerge<T extends Record<string, any>, U extends DeepPartial<T>>(
+export function deepMerge<T extends Record<string, unknown>, U extends DeepPartial<T>>(
   target: T,
   source: U | undefined
 ): T & U {
@@ -49,10 +53,13 @@ export function deepMerge<T extends Record<string, any>, U extends DeepPartial<T
         typeof targetValue === 'object' &&
         !Array.isArray(targetValue)
       ) {
-        result[key] = deepMerge(targetValue, sourceValue);
+        result[key] = deepMerge(
+          targetValue as Record<string, unknown>,
+          sourceValue as DeepPartial<Record<string, unknown>>
+        ) as (T & U)[Extract<keyof U, string>];
       } else if (sourceValue !== undefined) {
         // 只有当源值不是 undefined 时才覆盖
-        (result as any)[key] = sourceValue;
+        (result as Record<string, unknown>)[key] = sourceValue;
       }
     }
   }
