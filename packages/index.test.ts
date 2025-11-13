@@ -50,7 +50,7 @@ describe('HybridEditor', () => {
       el: container,
       locale: {
         toolbar: {
-          bold: 'Bold',
+          select: 'Select',
         },
       },
       features: ['rich-text'],
