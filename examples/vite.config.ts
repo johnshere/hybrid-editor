@@ -1,5 +1,6 @@
 import { defineConfig } from 'vite';
 import { resolve } from 'path';
+import { scssToString } from './vite-plugin-scss-to-string';
 
 export default defineConfig({
   root: resolve(__dirname, '.'),
@@ -12,4 +13,5 @@ export default defineConfig({
       'hybrid-editor': resolve(__dirname, '../packages'),
     },
   },
+  plugins: [scssToString()],
 });

@@ -1,0 +1,172 @@
+// 变量定义
+$PrimaryColor: #007bff;
+$BorderColor: #d0d0d0;
+$BorderColorHover: #b0b0b0;
+$BackgroundColor: #fff;
+$BackgroundColorHover: #f0f0f0;
+$BackgroundColorPanel: #fafafa;
+$BorderColorPanel: #e0e0e0;
+$TextColor: #333;
+$TextColorSecondary: #666;
+$FontFamily: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+$FontSize: 14px;
+$FontSizeSmall: 13px;
+$BorderRadius: 4px;
+$TransitionDuration: 0.2s;
+$ZIndexToolbar: 1000;
+
+// 编辑器容器样式
+.hybrid-editor-container {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  font-family: $FontFamily;
+  font-size: $FontSize;
+  color: $TextColor;
+  background-color: $BackgroundColor;
+}
+
+// 工具栏样式
+.hybrid-editor-toolbar {
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+
+  // 工具栏 fixed 定位（移动端）
+  &.toolbar-fixed {
+    position: fixed;
+    left: 0;
+    right: 0;
+    z-index: $ZIndexToolbar;
+
+    &.toolbar-position-top {
+      top: 0;
+    }
+
+    &.toolbar-position-bottom {
+      bottom: 0;
+    }
+  }
+}
+
+// 一层工具栏
+.toolbar-layer-1 {
+  display: flex;
+  justify-content: center;
+  padding: 8px 0;
+}
+
+// 二层工具栏
+.toolbar-layer-2 {
+  display: none;
+  justify-content: center;
+  padding: 8px 0;
+}
+
+// 工具栏位置相关样式
+.toolbar-position-top {
+  .toolbar-layer-2 {
+    padding-top: 0;
+  }
+}
+
+.toolbar-position-bottom {
+  .toolbar-layer-2 {
+    padding-bottom: 0;
+  }
+}
+
+// 工具按钮基础样式
+.hybrid-editor-toolbar {
+  .tool-button,
+  .category-button {
+    padding: 6px 12px;
+    border: 1px solid $BorderColor;
+    border-right: none;
+    border-radius: 0;
+    background-color: $BackgroundColor;
+    color: $TextColor;
+    cursor: pointer;
+    font-size: $FontSize;
+    transition: all $TransitionDuration;
+    white-space: nowrap;
+    margin: 0;
+
+    // 第一个按钮左侧圆角
+    &:first-child {
+      border-top-left-radius: $BorderRadius;
+      border-bottom-left-radius: $BorderRadius;
+    }
+
+    // 最后一个按钮右侧有 border 和圆角
+    &:last-child {
+      border-right: 1px solid $BorderColor;
+      border-top-right-radius: $BorderRadius;
+      border-bottom-right-radius: $BorderRadius;
+    }
+
+    // 悬停状态
+    &:hover {
+      background-color: $BackgroundColorHover;
+      border-color: $BorderColorHover;
+
+      // 相邻按钮的左边框颜色
+      & + .tool-button,
+      & + .category-button {
+        border-left-color: $BorderColorHover;
+      }
+    }
+
+    // 激活状态
+    &.active {
+      background-color: $PrimaryColor;
+      color: $BackgroundColor;
+      border-color: $PrimaryColor;
+
+      // 相邻按钮的左边框颜色
+      & + .tool-button,
+      & + .category-button {
+        border-left-color: $PrimaryColor;
+      }
+
+      // 最后一个按钮的右边框颜色
+      &:last-child {
+        border-right-color: $PrimaryColor;
+      }
+    }
+
+    // 按下状态
+    &:active {
+      transform: scale(0.95);
+    }
+  }
+
+  // 分类按钮特殊样式
+  .category-button {
+    font-weight: 500;
+  }
+}
+
+// 属性面板样式
+.hybrid-editor-property-panel {
+  padding: 12px;
+  border-top: 1px solid $BorderColorPanel;
+  background-color: $BackgroundColorPanel;
+  flex-shrink: 0;
+
+  .property-panel {
+    color: $TextColorSecondary;
+    font-size: $FontSizeSmall;
+  }
+}
+
+// Canvas/SVG 容器样式
+canvas,
+svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
