@@ -66,3 +66,81 @@ export function deepMerge<T extends Record<string, unknown>, U extends DeepParti
 
   return result;
 }
+
+/**
+ * BEM 命名空间前缀
+ */
+const BEM_PREFIX = 'he';
+
+/**
+ * 生成 BEM Block 类名
+ * @param block Block 名称
+ * @returns BEM Block 类名，格式：he-{block}
+ * @example
+ * b('container') // => 'he-container'
+ * b('toolbar') // => 'he-toolbar'
+ */
+export function b(block: string): string {
+  return `${BEM_PREFIX}-${block}`;
+}
+
+/**
+ * 生成 BEM Element 类名
+ * @param block Block 名称
+ * @param element Element 名称
+ * @returns BEM Element 类名，格式：he-{block}__{element}
+ * @example
+ * e('toolbar', 'button') // => 'he-toolbar__button'
+ * e('property-panel', 'content') // => 'he-property-panel__content'
+ */
+export function e(block: string, element: string): string {
+  return `${BEM_PREFIX}-${block}__${element}`;
+}
+
+/**
+ * 生成 BEM Modifier 类名
+ * @param block Block 名称
+ * @param element Element 名称（可选，如果提供则生成 Element Modifier）
+ * @param modifier Modifier 名称
+ * @returns BEM Modifier 类名
+ * @example
+ * m('toolbar', 'fixed') // => 'he-toolbar--fixed'
+ * m('toolbar', 'button', 'active') // => 'he-toolbar__button--active'
+ */
+export function m(block: string, elementOrModifier: string, modifier?: string): string {
+  if (modifier !== undefined) {
+    // Element Modifier: block__element--modifier
+    return `${BEM_PREFIX}-${block}__${elementOrModifier}--${modifier}`;
+  }
+  // Block Modifier: block--modifier
+  return `${BEM_PREFIX}-${block}--${elementOrModifier}`;
+}
+
+/**
+ * 生成完整的 BEM 类名（组合函数）
+ * @param block Block 名称
+ * @param element Element 名称（可选）
+ * @param modifier Modifier 名称（可选）
+ * @returns 完整的 BEM 类名
+ * @example
+ * bem('container') // => 'he-container'
+ * bem('toolbar', 'button') // => 'he-toolbar__button'
+ * bem('toolbar', 'button', 'active') // => 'he-toolbar__button--active'
+ * bem('toolbar', undefined, 'fixed') // => 'he-toolbar--fixed'
+ */
+export function bem(block: string, element?: string, modifier?: string): string {
+  if (modifier !== undefined) {
+    if (element !== undefined) {
+      // Element Modifier
+      return m(block, element, modifier);
+    }
+    // Block Modifier
+    return m(block, modifier);
+  }
+  if (element !== undefined) {
+    // Element
+    return e(block, element);
+  }
+  // Block
+  return b(block);
+}

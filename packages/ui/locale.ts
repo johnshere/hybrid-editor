@@ -8,8 +8,8 @@ export const zhCN = {
     zoom: '缩放',
     // 分类按钮
     text: '文本',
-    shape: '图形',
-    draw: '绘制',
+    vector: '矢量',
+    freehand: '自由绘制',
     // 文本工具
     fontSize: '大小',
     fontColor: '颜色',
@@ -19,7 +19,8 @@ export const zhCN = {
     strikethrough: '删除线',
     // 图形工具
     line: '直线',
-    rectangle: '矩形',
+    rect: '矩形',
+    circle: '圆形',
     ellipse: '椭圆',
     polygon: '多边形',
     // 绘制工具

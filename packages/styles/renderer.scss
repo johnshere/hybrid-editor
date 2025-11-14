@@ -1,0 +1,55 @@
+// 渲染层样式（在 Shadow DOM 中引入）
+// 这些样式只作用于渲染容器和渲染层
+
+@use './bem' as *;
+
+// 渲染容器样式（统一管理 DOM+SVG+Canvas 的容器层）
+@include b('render-container') {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  flex: 1;
+  overflow: hidden;
+  // 作为所有渲染节点的定位基准
+}
+
+// 文本层样式
+@include b('text-layer') {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: auto;
+  z-index: 1;
+}
+
+// 矢量图形层样式
+@include b('vector-layer') {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 2;
+}
+
+// 自由绘制层样式
+@include b('freehand-layer') {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 3;
+}
+
+// Canvas/SVG 容器样式
+canvas,
+svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}

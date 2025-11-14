@@ -4,33 +4,109 @@
  */
 export * from './locale';
 
+import type { NodeType, VectorType } from '../core';
 import { DeepPartial } from '../types/utils';
-import { deepMerge, isMobileDevice } from '../utils';
+import { deepMerge, isMobileDevice, b, e, m } from '../utils';
 import { zhCN, type InternalLocale } from './locale';
 
 const isMobile = isMobileDevice();
 
-// 辅助工具
+/**
+ * 辅助工具类型
+ */
 export type AuxiliaryTool = 'drag' | 'select' | 'zoom';
-// 文本工具
-export type TextTool = 'fontSize' | 'fontColor' | 'bold' | 'italic' | 'underline' | 'strikethrough';
-// 图形工具
-export type ShapeTool = 'line' | 'rectangle' | 'ellipse' | 'polygon';
-// 绘制工具
-export type DrawTool = 'pen' | 'penSize' | 'eraser';
-// 分类按钮
-export type CategoryButton = 'text' | 'shape' | 'draw';
-// 所有工具按钮类型
-export type ToolbarButton = AuxiliaryTool | TextTool | ShapeTool | DrawTool | CategoryButton;
-export type ToolbarPosition = 'bottom' | 'top';
 
-// 工具分类定义
+/**
+ * 文本工具类型
+ */
+export type TextTool = 'fontSize' | 'fontColor' | 'bold' | 'italic' | 'underline' | 'strikethrough';
+
+/**
+ * 图形工具类型（与 VectorType 对应，但使用更友好的命名）
+ */
+export type ShapeTool = 'line' | 'rect' | 'circle' | 'ellipse' | 'polygon';
+
+/**
+ * 绘制工具类型
+ */
+export type DrawTool = 'pen' | 'penSize' | 'eraser';
+
+/**
+ * 分类按钮类型（对应 NodeType）
+ */
+export type CategoryButton = 'text' | 'vector' | 'freehand';
+
+/**
+ * 所有工具按钮类型
+ */
+export type ToolbarButton = AuxiliaryTool | TextTool | ShapeTool | DrawTool | CategoryButton;
+
+/**
+ * 工具分类定义
+ */
 export const ToolCategories = {
   auxiliary: ['drag', 'select', 'zoom'] as AuxiliaryTool[],
   text: ['fontSize', 'fontColor', 'bold', 'italic', 'underline', 'strikethrough'] as TextTool[],
-  shape: ['line', 'rectangle', 'ellipse', 'polygon'] as ShapeTool[],
+  shape: ['line', 'rect', 'circle', 'ellipse', 'polygon'] as ShapeTool[],
   draw: ['pen', 'penSize', 'eraser'] as DrawTool[],
 } as const;
+
+/**
+ * ShapeTool 到 VectorType 的映射
+ */
+export const ShapeToolToVectorTypeMap: Record<ShapeTool, VectorType> = {
+  line: 'line',
+  rect: 'rect',
+  circle: 'circle',
+  ellipse: 'ellipse',
+  polygon: 'polygon',
+};
+
+/**
+ * CategoryButton 到 NodeType 的映射
+ */
+export const CategoryToNodeTypeMap: Record<CategoryButton, NodeType> = {
+  text: 'text',
+  vector: 'vector',
+  freehand: 'freehand',
+};
+
+/**
+ * 工具类型到节点类型的映射
+ */
+export function getNodeTypeFromTool(tool: ToolbarButton): NodeType | null {
+  // 分类按钮直接映射
+  if (tool === 'text' || tool === 'vector' || tool === 'freehand') {
+    return CategoryToNodeTypeMap[tool];
+  }
+
+  // 图形工具映射到 vector
+  if (ToolCategories.shape.includes(tool as ShapeTool)) {
+    return 'vector';
+  }
+
+  // 绘制工具映射到 freehand
+  if (ToolCategories.draw.includes(tool as DrawTool)) {
+    return 'freehand';
+  }
+
+  // 文本工具映射到 text
+  if (ToolCategories.text.includes(tool as TextTool)) {
+    return 'text';
+  }
+
+  // 辅助工具不创建节点
+  return null;
+}
+
+/**
+ * 获取图形工具对应的矢量类型
+ */
+export function getVectorTypeFromShapeTool(tool: ShapeTool): VectorType {
+  return ShapeToolToVectorTypeMap[tool];
+}
+
+export type ToolbarPosition = 'bottom' | 'top';
 
 type InternalToolbarConfig = {
   tools: ToolbarButton[];
@@ -41,7 +117,7 @@ type InternalToolbarConfig = {
 export type ToolbarConfig = DeepPartial<InternalToolbarConfig>;
 
 const defaultToolbarConfig: InternalToolbarConfig = {
-  tools: ['drag', 'select', 'zoom', 'text', 'shape', 'draw'],
+  tools: ['drag', 'select', 'zoom', 'text', 'vector', 'freehand'],
   fixed: isMobile,
   position: isMobile ? 'bottom' : 'top',
   locale: zhCN,
@@ -62,16 +138,16 @@ export class Toolbar {
   constructor(parentContainer: HTMLElement, config: ToolbarConfig | undefined) {
     // 创建主容器
     this.container = document.createElement('div');
-    this.container.className = 'hybrid-editor-toolbar';
+    this.container.className = b('toolbar');
     parentContainer.appendChild(this.container);
 
     // 创建一层容器
     this.layer1Container = document.createElement('div');
-    this.layer1Container.className = 'toolbar-layer-1';
+    this.layer1Container.className = e('toolbar', 'layer-1');
 
     // 创建二层容器
     this.layer2Container = document.createElement('div');
-    this.layer2Container.className = 'toolbar-layer-2';
+    this.layer2Container.className = e('toolbar', 'layer-2');
 
     this.config = deepMerge({ ...defaultToolbarConfig }, config);
 
@@ -112,7 +188,7 @@ export class Toolbar {
     });
 
     // 渲染分类按钮
-    const categories: CategoryButton[] = ['text', 'shape', 'draw'];
+    const categories: CategoryButton[] = ['text', 'vector', 'freehand'];
     categories.forEach((category) => {
       if (this.isToolEnabled(category)) {
         const button = this.createCategoryButton(category);
@@ -139,10 +215,10 @@ export class Toolbar {
       case 'text':
         tools = ToolCategories.text;
         break;
-      case 'shape':
+      case 'vector':
         tools = ToolCategories.shape;
         break;
-      case 'draw':
+      case 'freehand':
         tools = ToolCategories.draw;
         break;
     }
@@ -159,7 +235,9 @@ export class Toolbar {
   private createToolButton(tool: ToolbarButton): HTMLElement {
     const button = document.createElement('button');
     button.textContent = this.getToolLabel(tool);
-    button.className = `tool-button ${tool === this.activeTool ? 'active' : ''}`;
+    const baseClass = e('toolbar', 'button');
+    const activeClass = tool === this.activeTool ? ` ${m('toolbar', 'button', 'active')}` : '';
+    button.className = `${baseClass}${activeClass}`;
     button.addEventListener('click', () => this.selectTool(tool));
     return button;
   }
@@ -170,7 +248,10 @@ export class Toolbar {
   private createCategoryButton(category: CategoryButton): HTMLElement {
     const button = document.createElement('button');
     button.textContent = this.getToolLabel(category);
-    button.className = `category-button ${category === this.activeCategory ? 'active' : ''}`;
+    const baseClass = e('toolbar', 'category-button');
+    const activeClass =
+      category === this.activeCategory ? ` ${m('toolbar', 'category-button', 'active')}` : '';
+    button.className = `${baseClass}${activeClass}`;
     button.addEventListener('click', () => this.selectCategory(category));
     return button;
   }
@@ -193,7 +274,7 @@ export class Toolbar {
    */
   selectTool(tool: ToolbarButton): void {
     // 如果选择的是分类按钮，不处理
-    if (tool === 'text' || tool === 'shape' || tool === 'draw') {
+    if (tool === 'text' || tool === 'vector' || tool === 'freehand') {
       return;
     }
 
@@ -206,9 +287,9 @@ export class Toolbar {
    * 更新容器类名（根据位置和 fixed 状态）
    */
   private updateContainerClass(): void {
-    const classes = ['hybrid-editor-toolbar', `toolbar-position-${this.config.position}`];
+    const classes = [b('toolbar'), m('toolbar', `position-${this.config.position}`)];
     if (this.config.fixed) {
-      classes.push('toolbar-fixed');
+      classes.push(m('toolbar', 'fixed'));
     }
     this.container.className = classes.join(' ');
   }
@@ -262,7 +343,7 @@ export class PropertyPanel {
   constructor(parentContainer: HTMLElement, locale: InternalLocale) {
     // 创建属性面板容器并挂载到父容器
     this.container = document.createElement('div');
-    this.container.className = 'hybrid-editor-property-panel';
+    this.container.className = b('property-panel');
     parentContainer.appendChild(this.container);
 
     this.locale = locale;
@@ -276,7 +357,8 @@ export class PropertyPanel {
    */
   render(): void {
     // TODO: 实现属性面板渲染
-    this.container.innerHTML = `<div class="property-panel">${this.locale.toolbar.select || '属性面板'}</div>`;
+    const contentClass = e('property-panel', 'content');
+    this.container.innerHTML = `<div class="${contentClass}">${this.locale.toolbar.select || '属性面板'}</div>`;
   }
 
   /**

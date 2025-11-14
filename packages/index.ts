@@ -19,8 +19,8 @@ import { StateManager, CommandManager, type EditorState, type DocumentNode } fro
 import { RendererFactory, type Renderer } from './renderer';
 import { Toolbar, PropertyPanel, zhCN } from './ui';
 import type { InternalLocale, Locale, ToolbarConfig } from './ui';
-import { deepMerge } from './utils';
-import { styles } from './styles';
+import { deepMerge, b } from './utils';
+import { uiStyles } from './styles';
 
 /**
  * HybridEditor 内部选项类型（locale 已合并为完整对象）
@@ -30,8 +30,8 @@ interface InternalHybridEditorOptions {
   locale: InternalLocale;
   /** 启用的功能模块 */
   features: ('rich-text' | 'vector' | 'freehand')[];
-  /** 渲染器类型 */
-  rendererType: 'canvas' | 'svg';
+  /** 渲染器类型：'hybrid' 使用混合渲染器（推荐），'canvas' 或 'svg' 用于向后兼容 */
+  rendererType: 'hybrid' | 'canvas' | 'svg';
   /** 工具栏配置 */
   toolbarConfig?: ToolbarConfig;
 }
@@ -48,7 +48,6 @@ export interface HybridEditorOptions extends Omit<InternalHybridEditorOptions, '
  */
 export class HybridEditor {
   private el: HTMLElement;
-  private shadowRoot: ShadowRoot | null = null;
   private editorContainer: HTMLElement | null = null;
   private options: InternalHybridEditorOptions;
   private stateManager: StateManager;
@@ -72,7 +71,7 @@ export class HybridEditor {
       el: this.el,
       locale: deepMerge(options.locale || {}, zhCN),
       features: options.features || ['rich-text', 'vector', 'freehand'],
-      rendererType: options.rendererType || 'canvas',
+      rendererType: options.rendererType || 'hybrid',
       toolbarConfig: options.toolbarConfig,
     };
 
@@ -88,18 +87,15 @@ export class HybridEditor {
    * 挂载编辑器
    */
   mount(): void {
-    // 创建 Shadow DOM 实现样式隔离
-    this.shadowRoot = this.el.attachShadow({ mode: 'closed' });
+    // 注入组件库 UI 样式到主文档
+    this.injectUIStyles();
 
-    // 注入编辑器样式到 Shadow DOM
-    this.injectStyles();
-
-    // 创建编辑器主容器
+    // 创建编辑器主容器（不使用 Shadow DOM，只有渲染层使用 Shadow DOM）
     this.editorContainer = document.createElement('div');
-    this.editorContainer.className = 'hybrid-editor-container';
-    this.shadowRoot.appendChild(this.editorContainer);
+    this.editorContainer.className = b('container');
+    this.el.appendChild(this.editorContainer);
 
-    // 初始化渲染器（使用 Shadow DOM 内的容器）
+    // 初始化渲染器（渲染器内部会创建 Shadow DOM）
     this.renderer.init(this.editorContainer);
 
     // 创建工具栏（组件内部会自动创建容器并挂载）
@@ -124,21 +120,25 @@ export class HybridEditor {
   }
 
   /**
-   * 注入编辑器样式到 Shadow DOM
+   * 注入组件库 UI 样式到主文档
    */
-  private injectStyles(): void {
-    if (!this.shadowRoot) return;
+  private injectUIStyles(): void {
+    // 检查是否已经注入过样式
+    if (document.getElementById('he-ui-styles')) {
+      return;
+    }
 
     const style = document.createElement('style');
-    style.textContent = styles;
-    this.shadowRoot.appendChild(style);
+    style.id = 'he-ui-styles';
+    style.textContent = uiStyles;
+    document.head.appendChild(style);
   }
 
   /**
    * 卸载编辑器
    */
   unmount(): void {
-    // 销毁渲染器
+    // 销毁渲染器（会清理 Shadow DOM）
     this.renderer.destroy();
 
     // 清理 UI 组件
@@ -149,14 +149,7 @@ export class HybridEditor {
       // TODO: 清理属性面板
     }
 
-    // 清理 Shadow DOM
-    if (this.shadowRoot) {
-      // 清空 Shadow DOM 内容
-      this.shadowRoot.innerHTML = '';
-      this.shadowRoot = null;
-    }
-
-    // 清空宿主元素（Shadow DOM 被清空后，宿主元素也会被清空）
+    // 清空宿主元素
     this.el.innerHTML = '';
     this.editorContainer = null;
 

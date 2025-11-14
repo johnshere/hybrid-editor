@@ -1,0 +1,131 @@
+// BEM 命名工具
+// 用于生成符合 BEM 规范的 CSS 类名
+
+// BEM 命名空间前缀
+$BemPrefix: 'he' !default;
+
+/**
+ * 生成 BEM Block 类名
+ * @param {String} $block - Block 名称
+ * @returns {String} BEM Block 类名，格式：he-{block}
+ * @example
+ *   b('container') // => 'he-container'
+ *   b('toolbar') // => 'he-toolbar'
+ */
+@function b($block) {
+  @return #{$BemPrefix}-#{$block};
+}
+
+/**
+ * 生成 BEM Element 类名
+ * @param {String} $block - Block 名称
+ * @param {String} $element - Element 名称
+ * @returns {String} BEM Element 类名，格式：he-{block}__{element}
+ * @example
+ *   e('toolbar', 'button') // => 'he-toolbar__button'
+ *   e('property-panel', 'content') // => 'he-property-panel__content'
+ */
+@function e($block, $element) {
+  @return #{$BemPrefix}-#{$block}__#{$element};
+}
+
+/**
+ * 生成 BEM Modifier 类名
+ * @param {String} $block - Block 名称
+ * @param {String} $elementOrModifier - Element 名称（可选，如果提供则生成 Element Modifier）或 Modifier 名称（Block Modifier）
+ * @param {String} $modifier - Modifier 名称（可选，仅在 Element Modifier 时使用）
+ * @returns {String} BEM Modifier 类名
+ * @example
+ *   m('toolbar', 'fixed') // => 'he-toolbar--fixed'
+ *   m('toolbar', 'button', 'active') // => 'he-toolbar__button--active'
+ */
+@function m($block, $elementOrModifier, $modifier: null) {
+  @if $modifier != null {
+    // Element Modifier: block__element--modifier
+    @return #{$BemPrefix}-#{$block}__#{$elementOrModifier}--#{$modifier};
+  }
+  // Block Modifier: block--modifier
+  @return #{$BemPrefix}-#{$block}--#{$elementOrModifier};
+}
+
+/**
+ * 生成完整的 BEM 类名（组合函数）
+ * @param {String} $block - Block 名称
+ * @param {String} $element - Element 名称（可选）
+ * @param {String} $modifier - Modifier 名称（可选）
+ * @returns {String} 完整的 BEM 类名
+ * @example
+ *   bem('container') // => 'he-container'
+ *   bem('toolbar', 'button') // => 'he-toolbar__button'
+ *   bem('toolbar', 'button', 'active') // => 'he-toolbar__button--active'
+ *   bem('toolbar', null, 'fixed') // => 'he-toolbar--fixed'
+ */
+@function bem($block, $element: null, $modifier: null) {
+  @if $modifier != null {
+    @if $element != null {
+      // Element Modifier
+      @return m($block, $element, $modifier);
+    }
+    // Block Modifier
+    @return m($block, $modifier);
+  }
+  @if $element != null {
+    // Element
+    @return e($block, $element);
+  }
+  // Block
+  @return b($block);
+}
+
+/**
+ * BEM Block Mixin
+ * 生成 BEM Block 选择器
+ * @param {String} $block - Block 名称
+ * @example
+ *   @include b('container') {
+ *     width: 100%;
+ *   }
+ *   // => .he-container { width: 100%; }
+ */
+@mixin b($block) {
+  .#{b($block)} {
+    @content;
+  }
+}
+
+/**
+ * BEM Element Mixin
+ * 生成 BEM Element 选择器（嵌套在 Block 内）
+ * @param {String} $block - Block 名称
+ * @param {String} $element - Element 名称
+ * @example
+ *   @include b('toolbar') {
+ *     @include e('toolbar', 'button') {
+ *       padding: 6px;
+ *     }
+ *   }
+ *   // => .he-toolbar .he-toolbar__button { padding: 6px; }
+ */
+@mixin e($block, $element) {
+  .#{e($block, $element)} {
+    @content;
+  }
+}
+
+/**
+ * BEM Modifier Mixin
+ * 生成 BEM Modifier 选择器（嵌套在 Block 或 Element 内）
+ * @param {String} $modifier - Modifier 名称
+ * @example
+ *   @include b('toolbar') {
+ *     @include m('fixed') {
+ *       position: fixed;
+ *     }
+ *   }
+ *   // => .he-toolbar--fixed { position: fixed; }
+ */
+@mixin m($modifier) {
+  &--#{$modifier} {
+    @content;
+  }
+}

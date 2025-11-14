@@ -23,6 +23,63 @@ export interface EditorState {
 export type NodeType = 'text' | 'vector' | 'freehand';
 
 /**
+ * 矢量图形类型
+ */
+export type VectorType = 'rect' | 'circle' | 'ellipse' | 'line' | 'polygon' | 'path';
+
+/**
+ * 富文本节点数据
+ */
+export interface TextNodeData {
+  /** 文本内容（HTML） */
+  content: string;
+  /** 字体大小 */
+  fontSize?: number;
+  /** 字体颜色 */
+  color?: string;
+  /** 字体粗细 */
+  fontWeight?: string | number;
+  /** 字体样式 */
+  fontStyle?: string;
+  /** 文本对齐方式 */
+  textAlign?: 'left' | 'center' | 'right' | 'justify';
+}
+
+/**
+ * 矢量图形节点数据
+ */
+export interface VectorNodeData {
+  /** 矢量图形类型 */
+  vectorType: VectorType;
+  /** SVG 路径数据（用于 path 类型） */
+  pathData?: string;
+  /** 填充颜色 */
+  fill?: string;
+  /** 描边颜色 */
+  stroke?: string;
+  /** 描边宽度 */
+  strokeWidth?: number;
+  /** 其他 SVG 属性 */
+  attributes?: Record<string, string | number>;
+}
+
+/**
+ * 自由绘制节点数据
+ */
+export interface FreehandNodeData {
+  /** 绘制路径点数组 [x, y, pressure?] */
+  points: Array<[number, number, number?]>;
+  /** 描边颜色 */
+  stroke?: string;
+  /** 描边宽度 */
+  strokeWidth?: number;
+  /** 线条样式 */
+  lineCap?: 'butt' | 'round' | 'square';
+  /** 线条连接样式 */
+  lineJoin?: 'miter' | 'round' | 'bevel';
+}
+
+/**
  * 文档节点基础接口
  */
 export interface DocumentNode {
@@ -32,6 +89,14 @@ export interface DocumentNode {
   y: number;
   width: number;
   height: number;
+  /** 富文本节点数据 */
+  textData?: TextNodeData;
+  /** 矢量图形节点数据 */
+  vectorData?: VectorNodeData;
+  /** 自由绘制节点数据 */
+  freehandData?: FreehandNodeData;
+  /** z-index 层级 */
+  zIndex?: number;
 }
 
 /**
