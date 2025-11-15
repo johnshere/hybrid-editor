@@ -339,6 +339,7 @@ export class Toolbar {
 export class PropertyPanel {
   private container: HTMLElement;
   private locale: InternalLocale;
+  private currentTool: ToolbarButton = 'select';
 
   constructor(parentContainer: HTMLElement, locale: InternalLocale) {
     // 创建属性面板容器并挂载到父容器
@@ -356,9 +357,17 @@ export class PropertyPanel {
    * 渲染属性面板
    */
   render(): void {
-    // TODO: 实现属性面板渲染
     const contentClass = e('property-panel', 'content');
-    this.container.innerHTML = `<div class="${contentClass}">${this.locale.toolbar.select || '属性面板'}</div>`;
+    const toolLabel = this.locale.toolbar[this.currentTool] || this.currentTool;
+    this.container.innerHTML = `<div class="${contentClass}">${toolLabel}</div>`;
+  }
+
+  /**
+   * 更新工具
+   */
+  updateTool(tool: ToolbarButton): void {
+    this.currentTool = tool;
+    this.render();
   }
 
   /**

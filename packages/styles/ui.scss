@@ -31,6 +31,7 @@
   font-size: var(--font-size);
   color: var(--text-color);
   background-color: var(--background-color);
+  position: relative;
 }
 
 // 渲染宿主容器样式（Shadow DOM 宿主）
@@ -45,36 +46,22 @@
   display: flex;
   flex-direction: column;
   flex-shrink: 0;
+  position: absolute;
+  left: 0;
+  right: 0;
+  z-index: var(--z-index-toolbar);
 
   // 工具栏 fixed 定位（移动端）
   @include m('fixed') {
     position: fixed;
-    left: 0;
-    right: 0;
-    z-index: var(--z-index-toolbar);
   }
 
-  // 工具栏 fixed + position-top 组合
-  &--fixed.#{m('toolbar', 'position-top')} {
+  &.#{m('toolbar', 'position-top')} {
     top: 0;
   }
 
-  // 工具栏 fixed + position-bottom 组合
-  &--fixed.#{m('toolbar', 'position-bottom')} {
+  &.#{m('toolbar', 'position-bottom')} {
     bottom: 0;
-  }
-
-  // 工具栏位置相关样式
-  @include m('position-top') {
-    .#{e('toolbar', 'layer-2')} {
-      padding-top: 0;
-    }
-  }
-
-  @include m('position-bottom') {
-    .#{e('toolbar', 'layer-2')} {
-      padding-bottom: 0;
-    }
   }
 
   // 一层工具栏
@@ -88,7 +75,6 @@
   @include e('toolbar', 'layer-2') {
     display: none;
     justify-content: center;
-    padding: 8px 0;
   }
 
   // 工具按钮基础样式
@@ -145,6 +131,24 @@
       // 最后一个按钮的右边框颜色
       &:last-child {
         border-right-color: var(--primary-color);
+      }
+
+      // 激活状态的悬停效果（在激活背景色基础上减淡）
+      &:hover {
+        background-color: color-mix(in srgb, var(--primary-color) 85%, white);
+        border-color: color-mix(in srgb, var(--primary-color) 85%, white);
+        color: var(--background-color);
+
+        // 相邻按钮的左边框颜色
+        & + #{e('toolbar', 'button')},
+        & + #{e('toolbar', 'category-button')} {
+          border-left-color: color-mix(in srgb, var(--primary-color) 85%, white);
+        }
+
+        // 最后一个按钮的右边框颜色
+        &:last-child {
+          border-right-color: color-mix(in srgb, var(--primary-color) 85%, white);
+        }
       }
     }
 
@@ -209,6 +213,24 @@
       // 最后一个按钮的右边框颜色
       &:last-child {
         border-right-color: var(--primary-color);
+      }
+
+      // 激活状态的悬停效果（在激活背景色基础上减淡）
+      &:hover {
+        background-color: color-mix(in srgb, var(--primary-color) 85%, white);
+        border-color: color-mix(in srgb, var(--primary-color) 85%, white);
+        color: var(--background-color);
+
+        // 相邻按钮的左边框颜色
+        & + #{e('toolbar', 'button')},
+        & + #{e('toolbar', 'category-button')} {
+          border-left-color: color-mix(in srgb, var(--primary-color) 85%, white);
+        }
+
+        // 最后一个按钮的右边框颜色
+        &:last-child {
+          border-right-color: color-mix(in srgb, var(--primary-color) 85%, white);
+        }
       }
     }
 

@@ -107,6 +107,17 @@ export class HybridEditor {
     // 创建属性面板（组件内部会自动创建容器并挂载）
     this.propertyPanel = new PropertyPanel(this.editorContainer, this.options.locale);
 
+    // 订阅工具栏工具变化，更新属性面板显示
+    if (this.toolbar && this.propertyPanel) {
+      // 初始化属性面板显示当前工具
+      this.propertyPanel.updateTool(this.toolbar.getActiveTool());
+
+      // 订阅工具变化事件
+      this.toolbar.onToolChange((tool) => {
+        this.propertyPanel?.updateTool(tool);
+      });
+    }
+
     // 订阅状态变化
     this.stateManager.subscribe((state: EditorState) => {
       // 状态变化时重新渲染

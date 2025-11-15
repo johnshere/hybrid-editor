@@ -9,7 +9,7 @@ export const zhCN = {
     // 分类按钮
     text: '文本',
     vector: '矢量',
-    freehand: '自由绘制',
+    freehand: '手绘',
     // 文本工具
     fontSize: '大小',
     fontColor: '颜色',
