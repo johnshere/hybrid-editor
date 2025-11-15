@@ -66,34 +66,16 @@ export class HybridRenderer implements Renderer {
     // 创建渲染容器层（作为定位基准，包含所有渲染层）
     this.renderContainer = document.createElement('div');
     this.renderContainer.className = b('render-container');
-    this.renderContainer.style.position = 'relative';
-    this.renderContainer.style.width = '100%';
-    this.renderContainer.style.height = '100%';
-    this.renderContainer.style.overflow = 'hidden';
     this.shadowRoot.appendChild(this.renderContainer);
 
     // 创建文本层（DOM）
     this.textLayer = document.createElement('div');
     this.textLayer.className = b('text-layer');
-    this.textLayer.style.position = 'absolute';
-    this.textLayer.style.top = '0';
-    this.textLayer.style.left = '0';
-    this.textLayer.style.width = '100%';
-    this.textLayer.style.height = '100%';
-    this.textLayer.style.pointerEvents = 'auto';
-    this.textLayer.style.zIndex = '1';
     this.renderContainer.appendChild(this.textLayer);
 
     // 创建矢量图形层（SVG）
     this.vectorLayer = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
     this.vectorLayer.setAttribute('class', b('vector-layer'));
-    this.vectorLayer.style.position = 'absolute';
-    this.vectorLayer.style.top = '0';
-    this.vectorLayer.style.left = '0';
-    this.vectorLayer.style.width = '100%';
-    this.vectorLayer.style.height = '100%';
-    this.vectorLayer.style.pointerEvents = 'none';
-    this.vectorLayer.style.zIndex = '2';
     this.renderContainer.appendChild(this.vectorLayer);
 
     // 创建自由绘制层（Canvas）
@@ -101,13 +83,6 @@ export class HybridRenderer implements Renderer {
     this.freehandLayer.className = b('freehand-layer');
     this.freehandLayer.width = container.clientWidth;
     this.freehandLayer.height = container.clientHeight;
-    this.freehandLayer.style.position = 'absolute';
-    this.freehandLayer.style.top = '0';
-    this.freehandLayer.style.left = '0';
-    this.freehandLayer.style.width = '100%';
-    this.freehandLayer.style.height = '100%';
-    this.freehandLayer.style.pointerEvents = 'none';
-    this.freehandLayer.style.zIndex = '3';
     this.renderContainer.appendChild(this.freehandLayer);
     this.freehandCtx = this.freehandLayer.getContext('2d');
   }
@@ -173,8 +148,12 @@ export class HybridRenderer implements Renderer {
    */
   private injectStyles(): void {
     if (!this.shadowRoot) return;
+    if (document.getElementById('he-renderer-styles')) {
+      return;
+    }
 
     const style = document.createElement('style');
+    style.id = 'he-renderer-styles';
     style.textContent = rendererStyles;
     this.shadowRoot.appendChild(style);
   }

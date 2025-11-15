@@ -135,12 +135,12 @@ export class HybridEditor {
    */
   private injectUIStyles(): void {
     // 检查是否已经注入过样式
-    if (document.getElementById('he-ui-styles')) {
+    if (document.getElementById('he-styles')) {
       return;
     }
 
     const style = document.createElement('style');
-    style.id = 'he-ui-styles';
+    style.id = 'he-styles';
     style.textContent = uiStyles;
     document.head.appendChild(style);
   }
