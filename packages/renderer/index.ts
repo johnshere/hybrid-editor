@@ -14,7 +14,7 @@ export interface Renderer {
   /**
    * 初始化渲染器
    */
-  init(container: HTMLElement): void;
+  init(container: HTMLElement): HTMLDivElement | void;
 
   /**
    * 渲染节点
@@ -49,7 +49,7 @@ export class HybridRenderer implements Renderer {
   private freehandCtx: CanvasRenderingContext2D | null = null;
   private nodeElements: Map<string, HTMLElement | SVGElement> = new Map();
 
-  init(container: HTMLElement): void {
+  init(container: HTMLElement): HTMLDivElement | void {
     this.container = container;
 
     // 创建 Shadow DOM 实现样式隔离（只包裹渲染层）
@@ -71,6 +71,7 @@ export class HybridRenderer implements Renderer {
     // 创建文本层（DOM）
     this.textLayer = document.createElement('div');
     this.textLayer.className = b('text-layer');
+    this.textLayer.contentEditable = 'true';
     this.renderContainer.appendChild(this.textLayer);
 
     // 创建矢量图形层（SVG）
@@ -85,6 +86,8 @@ export class HybridRenderer implements Renderer {
     this.freehandLayer.height = container.clientHeight;
     this.renderContainer.appendChild(this.freehandLayer);
     this.freehandCtx = this.freehandLayer.getContext('2d');
+
+    return shadowHost;
   }
 
   renderNode(node: DocumentNode): void {

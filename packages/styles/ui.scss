@@ -46,23 +46,22 @@
   display: flex;
   flex-direction: column;
   flex-shrink: 0;
-  position: absolute;
-  left: 0;
-  right: 0;
   z-index: var(--z-index-toolbar);
 
   // 工具栏 fixed 定位（移动端）
   @include m('fixed') {
     position: fixed;
+    left: 50%;
+    transform: translateX(-50%);
+    &.#{m('toolbar', 'position-top')} {
+      top: 0;
+    }
+  
+    &.#{m('toolbar', 'position-bottom')} {
+      bottom: 0;
+    }
   }
 
-  &.#{m('toolbar', 'position-top')} {
-    top: 0;
-  }
-
-  &.#{m('toolbar', 'position-bottom')} {
-    bottom: 0;
-  }
 
   // 一层工具栏
   @include e('toolbar', 'layer-1') {

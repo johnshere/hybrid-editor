@@ -135,11 +135,10 @@ export class Toolbar {
   private activeCategory: CategoryButton | null = null; // 当前激活的分类
   private toolChangeListeners: Set<(tool: ToolbarButton) => void> = new Set();
 
-  constructor(parentContainer: HTMLElement, config: ToolbarConfig | undefined) {
+  constructor(renderer: HTMLElement, config: ToolbarConfig | undefined) {
     // 创建主容器
     this.container = document.createElement('div');
     this.container.className = b('toolbar');
-    parentContainer.appendChild(this.container);
 
     // 创建一层容器
     this.layer1Container = document.createElement('div');
@@ -158,6 +157,20 @@ export class Toolbar {
     } else {
       this.container.appendChild(this.layer2Container);
       this.container.appendChild(this.layer1Container);
+    }
+
+    // 根据位置决定工具栏插入位置
+    const parentContainer = renderer.parentElement;
+    if (!parentContainer) {
+      throw new Error('Renderer element must have a parent container');
+    }
+
+    if (this.config.position === 'top') {
+      // position 是 top：插入到 renderer 前面
+      parentContainer.insertBefore(this.container, renderer);
+    } else {
+      // position 是 bottom：插入到 renderer 后面
+      parentContainer.appendChild(this.container);
     }
 
     // 自动渲染
@@ -233,6 +246,11 @@ export class Toolbar {
    * 创建工具按钮
    */
   private createToolButton(tool: ToolbarButton): HTMLElement {
+    // fontSize 按钮特殊处理，改为下拉选择器
+    if (tool === 'fontSize') {
+      return this.createFontSizeSelector();
+    }
+
     const button = document.createElement('button');
     button.textContent = this.getToolLabel(tool);
     const baseClass = e('toolbar', 'button');
@@ -240,6 +258,43 @@ export class Toolbar {
     button.className = `${baseClass}${activeClass}`;
     button.addEventListener('click', () => this.selectTool(tool));
     return button;
+  }
+
+  /**
+   * 创建字体大小下拉选择器
+   */
+  private createFontSizeSelector(): HTMLElement {
+    const select = document.createElement('select');
+    select.className = e('toolbar', 'button');
+    select.style.cursor = 'pointer';
+    select.style.appearance = 'none';
+    (select.style as any).webkitAppearance = 'none';
+    (select.style as any).mozAppearance = 'none';
+    select.style.paddingRight = '24px';
+    select.style.backgroundImage =
+      "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23333' d='M6 9L1 4h10z'/%3E%3C/svg%3E\")";
+    select.style.backgroundRepeat = 'no-repeat';
+    select.style.backgroundPosition = 'right 8px center';
+    select.style.backgroundSize = '12px';
+
+    // 字体大小选项（8-72px）
+    const FontSizes = [8, 9, 10, 11, 12, 14, 16, 18, 20, 24, 28, 32, 36, 48, 60, 72];
+    FontSizes.forEach((size) => {
+      const option = document.createElement('option');
+      option.value = size.toString();
+      option.textContent = `${size}px`;
+      select.appendChild(option);
+    });
+
+    // 设置默认值
+    select.value = '14';
+
+    // 选择变化时通知工具变化
+    select.addEventListener('change', () => {
+      this.selectTool('fontSize');
+    });
+
+    return select;
   }
 
   /**

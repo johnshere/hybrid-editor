@@ -96,10 +96,14 @@ export class HybridEditor {
     this.el.appendChild(this.editorContainer);
 
     // 初始化渲染器（渲染器内部会创建 Shadow DOM）
-    this.renderer.init(this.editorContainer);
+    const renderer = this.renderer.init(this.editorContainer);
+
+    if (!renderer) {
+      throw new Error('Failed to initialize renderer');
+    }
 
     // 创建工具栏（组件内部会自动创建容器并挂载）
-    this.toolbar = new Toolbar(this.editorContainer, {
+    this.toolbar = new Toolbar(renderer, {
       ...this.options.toolbarConfig,
       locale: this.options.locale,
     });
